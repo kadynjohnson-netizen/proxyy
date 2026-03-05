@@ -1,0 +1,21 @@
+git clone https://github.com/1rgs/claude-code-proxy.git
+cd claude-code-proxy
+curl -LsSf https://astral.sh/uv/install.sh | sh
+cp .env.example .env
+uv run uvicorn server:app --host 0.0.0.0 --port 8082 --reload
+curl -O .env https://raw.githubusercontent.com/1rgs/claude-code-proxy/refs/heads/main/.env.example
+services:
+  proxy:
+    image: ghcr.io/1rgs/claude-code-proxy:latest
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - 8082:8082
+docker run -d --env-file .env -p 8082:8082 ghcr.io/1rgs/claude-code-proxy:latest
+npm install -g @anthropic-ai/claude-code
+ANTHROPIC_BASE_URL=http://localhost:8082 claude
+OPENAI_API_KEY="your-openai-key"
+GEMINI_API_KEY="your-google-key" # Needed if PREFERRED_PROVIDER=google
+# PREFERRED_PROVIDER="openai" # Optional, it's the default
+# BIG_MODEL="gpt-4.1" # Optional, it's the default
+# SMALL_MODEL="gpt-4.1-mini" # Optional, it's the default
